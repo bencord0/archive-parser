@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use sea_query::{Iden, PostgresQueryBuilder, Query, SimpleExpr};
+use sea_query::{Iden, OnConflict, PostgresQueryBuilder, Query, SimpleExpr};
 use sea_query_postgres::{PostgresBinder, PostgresValues};
 
 #[derive(Debug, Default)]
@@ -9,6 +9,7 @@ pub struct InsertSql {
     text: String,
     timestamp: NaiveDateTime,
     media_attachment_ids: Vec<u64>,
+    in_reply_to_id: Option<u64>,
 }
 
 impl InsertSql {
@@ -37,6 +38,11 @@ impl InsertSql {
         self
     }
 
+    pub fn in_reply_to_id(mut self, in_reply_to_id: u64) -> Self {
+        self.in_reply_to_id = Some(in_reply_to_id);
+        self
+    }
+
     pub fn as_query_values(&self) -> (String, PostgresValues) {
         let mut columns = vec![
             Statuses::Id,
@@ -45,6 +51,7 @@ impl InsertSql {
             Statuses::CreatedAt,
             Statuses::UpdatedAt,
             Statuses::AccountId,
+            Statuses::InReplyToId,
         ];
 
         let mut values: Vec<SimpleExpr> = vec![
@@ -54,6 +61,7 @@ impl InsertSql {
             self.timestamp.clone().into(),
             self.timestamp.clone().into(),
             (self.account_id).into(),
+            self.in_reply_to_id.into(),
         ];
 
         if self.media_attachment_ids.len() > 0 {
@@ -65,18 +73,31 @@ impl InsertSql {
             .into_table(Statuses::Table)
             .columns(columns)
             .values_panic(values)
+            .on_conflict(
+                OnConflict::column(Statuses::Id)
+                    .value::<Statuses, SimpleExpr>(
+                        Statuses::OrderedMediaAttachmentIds,
+                        self.media_attachment_ids.clone().into(),
+                    )
+                    .value::<Statuses, SimpleExpr>(
+                        Statuses::InReplyToId,
+                        self.in_reply_to_id.into(),
+                    )
+                    .to_owned(),
+            )
             .build_postgres(PostgresQueryBuilder)
     }
 }
 
 #[derive(Iden)]
 enum Statuses {
-  Table,
-  Id,
-  Uri,
-  AccountId,
-  Text,
-  CreatedAt,
-  UpdatedAt,
-  OrderedMediaAttachmentIds,
+    Table,
+    Id,
+    Uri,
+    AccountId,
+    Text,
+    CreatedAt,
+    UpdatedAt,
+    InReplyToId,
+    OrderedMediaAttachmentIds,
 }

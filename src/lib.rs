@@ -11,7 +11,7 @@ pub use media::{
     Photo,
     Video,
 };
-pub use sql::{InsertSql, UpdateMediaSql};
+pub use sql::{InsertSql, SelectStatusSql, Status, UpdateMediaSql};
 pub use tweet::Tweet;
 
 #[derive(Debug, Deserialize)]

@@ -19,4 +19,13 @@ impl AnimatedGif {
     pub fn id(&self) -> u64 {
         self.id_str.parse().unwrap()
     }
+
+    pub fn file_name(&self) -> String {
+        let Some(variant) = self.video_info.highest_bitrate_variant() else {
+            todo!("{:#?}", self)
+        };
+
+        let path = PathBuf::from(&variant.url);
+        path.file_name().unwrap().to_string_lossy().to_string()
+    }
 }

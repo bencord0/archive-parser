@@ -42,7 +42,7 @@ impl Media {
             Media::Photo(photo) => photo.file_name(),
             Media::Video(video) => video.file_name(),
         };
-
+        assert!(!suffix.contains("?"));
         format!("{prefix}-{suffix}")
     }
 

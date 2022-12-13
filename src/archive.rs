@@ -8,7 +8,7 @@ use crate::{TweetWrapper, Tweet};
 
 pub struct TwitterArchive {
     pub base_dir: PathBuf,
-    tweets: BTreeMap<usize, Tweet>,
+    pub tweets: BTreeMap<usize, Tweet>,
 }
 
 impl TwitterArchive {

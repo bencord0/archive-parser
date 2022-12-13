@@ -35,4 +35,22 @@ impl Video {
         self.id_str.parse().unwrap()
     }
 
+    pub fn file_name(&self) -> String {
+        let Some(info) = &self.video_info else {
+            todo!("{:#?}", self)
+        };
+
+        let Some(variant) = info.highest_bitrate_variant() else {
+            todo!("{:#?}", self)
+        };
+
+        let path = PathBuf::from(&variant.url);
+        let mut path = path.file_name().unwrap().to_string_lossy().to_string();
+
+        // Remove query strings
+        if let Some(index) = path.find('?') {
+            path = path[..index].into();
+        }
+        path
+    }
 }

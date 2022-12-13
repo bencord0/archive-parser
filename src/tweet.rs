@@ -46,11 +46,18 @@ impl Tweet {
         }
     }
 
-    fn replaced_text(&self) -> String {
+    pub(crate) fn replaced_text(&self) -> String {
         let mut text = self.full_text.to_string();
 
         for url in &self.entities.urls {
             text = text.replace(&url.url, &url.expanded_url);
+        }
+
+        for mention in &self.entities.user_mentions {
+            let screen_name = &mention.screen_name;
+            let original = format!("@{screen_name}");
+            let replacement = format!("@{screen_name}@twitter.com");
+            text = text.replace(&original, &replacement);
         }
 
         for media in &self.entities.media {
@@ -97,17 +104,27 @@ impl Tweet {
     }
 
     pub fn insert_sql(&self) -> InsertSql {
-        InsertSql::default()
+        let mut sql = InsertSql::default()
             .status_id(self.id() as u64)
             .account_id(109332829728569035)
             .text(self.replaced_text())
-            .timestamp(self.created_at.clone())
+            .timestamp(self.created_at.clone());
+
+        if let Some(in_reply_to_id) = self.parent_id() {
+            sql = sql.in_reply_to_id(in_reply_to_id as u64);
+        }
+
+        sql
     }
 }
 
 impl std::fmt::Display for Tweet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let replaced_text = self.replaced_text();
+        write!(f, "id: {}\n", self.id_str)?;
+        if let Some(in_reply_to) = &self.in_reply_to_status_id_str {
+            write!(f, "in_reply_to: {}\n", in_reply_to)?;
+        }
         write!(f, "{replaced_text}\n")?;
 
         write!(f, "  {}\n", self.created_at)?;
