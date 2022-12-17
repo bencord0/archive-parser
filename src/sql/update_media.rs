@@ -1,19 +1,19 @@
-use sea_query::{Iden, PostgresQueryBuilder, Query, Expr};
+use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_postgres::{PostgresBinder, PostgresValues};
 
 #[derive(Debug, Default)]
 pub struct UpdateMediaSql {
-    status_id: u64,
-    media_attachment_id: u64,
+    status_id: i64,
+    media_attachment_id: i64,
 }
 
 impl UpdateMediaSql {
-    pub fn status_id(mut self, id: u64) -> Self {
+    pub fn status_id(mut self, id: i64) -> Self {
         self.status_id = id;
         self
     }
 
-    pub fn media_id(mut self, media_attachment_id: u64) -> Self {
+    pub fn media_id(mut self, media_attachment_id: i64) -> Self {
         self.media_attachment_id = media_attachment_id;
         self
     }
@@ -22,9 +22,7 @@ impl UpdateMediaSql {
         let expr = Expr::col(MediaAttachments::Id).eq(self.media_attachment_id);
         Query::update()
             .table(MediaAttachments::Table)
-            .values([
-                (MediaAttachments::StatusId, self.status_id.into()),
-            ])
+            .values([(MediaAttachments::StatusId, self.status_id.into())])
             .and_where(expr)
             .build_postgres(PostgresQueryBuilder)
     }

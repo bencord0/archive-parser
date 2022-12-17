@@ -4,21 +4,21 @@ use sea_query_postgres::{PostgresBinder, PostgresValues};
 
 #[derive(Debug, Default)]
 pub struct InsertSql {
-    status_id: u64,
-    account_id: u64,
+    status_id: i64,
+    account_id: i64,
     text: String,
     timestamp: NaiveDateTime,
-    media_attachment_ids: Vec<u64>,
-    in_reply_to_id: Option<u64>,
+    media_attachment_ids: Vec<i64>,
+    in_reply_to_id: Option<i64>,
 }
 
 impl InsertSql {
-    pub fn status_id(mut self, id: u64) -> Self {
+    pub fn status_id(mut self, id: i64) -> Self {
         self.status_id = id;
         self
     }
 
-    pub fn account_id(mut self, id: u64) -> Self {
+    pub fn account_id(mut self, id: i64) -> Self {
         self.account_id = id;
         self
     }
@@ -33,12 +33,12 @@ impl InsertSql {
         self
     }
 
-    pub fn with_media(mut self, media_attachment_ids: &[u64]) -> Self {
+    pub fn with_media(mut self, media_attachment_ids: &[i64]) -> Self {
         self.media_attachment_ids = media_attachment_ids.to_vec();
         self
     }
 
-    pub fn in_reply_to_id(mut self, in_reply_to_id: u64) -> Self {
+    pub fn in_reply_to_id(mut self, in_reply_to_id: i64) -> Self {
         self.in_reply_to_id = Some(in_reply_to_id);
         self
     }

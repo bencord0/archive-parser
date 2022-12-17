@@ -1,9 +1,6 @@
 #![allow(dead_code)]
+use archive_parser::{Tweet, TweetWrapper};
 use std::collections::BTreeMap;
-use archive_parser::{
-    TweetWrapper,
-    Tweet,
-};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // My archive is about 21M.
@@ -14,7 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let prefix = "window.YTD.tweets.part0 = ".len();
     let tweets: Vec<TweetWrapper> = serde_json::from_str(&content[prefix..])?;
 
-    let mut my_tweets: BTreeMap<usize, &Tweet> = BTreeMap::new();
+    let mut my_tweets: BTreeMap<i64, &Tweet> = BTreeMap::new();
 
     for tweetw in &tweets {
         let tweet = &tweetw.tweet;
@@ -39,11 +36,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 my_tweets.remove(&tweet_id);
             }
         }
-    };
+    }
 
     let mut tweet_count = 0;
     for (tweet_id, tweet) in my_tweets.iter_mut() {
-
         if tweet.is_retweet() {
             continue;
         }
@@ -63,13 +59,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Some(extended_entities) = &tweet.extended_entities {
             // Not media
             if extended_entities.media.is_empty() {
-                break
+                break;
             }
 
             // Not a photo
             for media in &extended_entities.media {
                 if media.r#type() != "photo" {
-                    break
+                    break;
                 }
             }
         }

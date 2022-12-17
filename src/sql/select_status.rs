@@ -6,11 +6,11 @@ use std::error::Error;
 
 #[derive(Debug, Default)]
 pub struct SelectStatusSql {
-    status_id: u64,
+    status_id: i64,
 }
 
 impl SelectStatusSql {
-    pub fn status_id(mut self, id: u64) -> Self {
+    pub fn status_id(mut self, id: i64) -> Self {
         self.status_id = id;
         self
     }
@@ -55,7 +55,7 @@ enum Statuses {
     OrderedMediaAttachmentIds,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Status {
     pub id: i64,
     pub uri: String,

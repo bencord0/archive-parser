@@ -17,14 +17,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     assert_eq!(tweet.id(), tweet_id);
 
-    let media_attachment_ids: Vec<u64> = vec![
-        109491958253082956,
-    ];
-
+    let media_attachment_ids: Vec<i64> = vec![109491958253082956];
 
     for media_id in media_attachment_ids {
         let sql = archive_parser::UpdateMediaSql::default()
-            .status_id(tweet.id() as u64)
+            .status_id(tweet.id())
             .media_id(media_id);
         let (query, values) = sql.as_query_values();
 

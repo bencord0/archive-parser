@@ -8,7 +8,7 @@ struct Config {
     #[arg(long)]
     archive: PathBuf,
     #[arg(long)]
-    tweet: usize,
+    tweet: i64,
 }
 
 fn main() {

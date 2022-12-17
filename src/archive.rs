@@ -1,14 +1,9 @@
-use std::{
-    collections::BTreeMap,
-    error::Error,
-    fs,
-    path::PathBuf,
-};
-use crate::{TweetWrapper, Tweet};
+use crate::{Tweet, TweetWrapper};
+use std::{collections::BTreeMap, error::Error, fs, path::PathBuf};
 
 pub struct TwitterArchive {
     pub base_dir: PathBuf,
-    pub tweets: BTreeMap<usize, Tweet>,
+    pub tweets: BTreeMap<i64, Tweet>,
 }
 
 impl TwitterArchive {
@@ -18,10 +13,7 @@ impl TwitterArchive {
     {
         let base_dir = base_dir.into();
         let tweets = BTreeMap::new();
-        let mut archive = Self {
-            base_dir,
-            tweets,
-        };
+        let mut archive = Self { base_dir, tweets };
 
         archive.init()?;
         Ok(archive)
@@ -66,7 +58,7 @@ impl TwitterArchive {
         Ok(())
     }
 
-    pub fn get_tweet(&self, id: usize) -> Result<&Tweet, Box<dyn Error>> {
+    pub fn get_tweet(&self, id: i64) -> Result<&Tweet, Box<dyn Error>> {
         self.tweets.get(&id).ok_or_else(|| "not found".into())
     }
 }

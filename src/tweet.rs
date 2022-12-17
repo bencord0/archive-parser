@@ -35,14 +35,14 @@ pub struct Tweet {
 }
 
 impl Tweet {
-    pub fn id(&self) -> usize {
+    pub fn id(&self) -> i64 {
         self.id_str.parse().unwrap()
     }
 
-    pub fn parent_id(&self) -> Option<usize> {
+    pub fn parent_id(&self) -> Option<i64> {
         match &self.in_reply_to_status_id_str {
             Some(id) => Some(id.parse().unwrap()),
-            None => None
+            None => None,
         }
     }
 
@@ -105,13 +105,13 @@ impl Tweet {
 
     pub fn insert_sql(&self) -> InsertSql {
         let mut sql = InsertSql::default()
-            .status_id(self.id() as u64)
-            .account_id(109332829728569035)
+            .status_id(self.id())
+            .account_id(109399109809644293)
             .text(self.replaced_text())
             .timestamp(self.created_at.clone());
 
         if let Some(in_reply_to_id) = self.parent_id() {
-            sql = sql.in_reply_to_id(in_reply_to_id as u64);
+            sql = sql.in_reply_to_id(in_reply_to_id);
         }
 
         sql
