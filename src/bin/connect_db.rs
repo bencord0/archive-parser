@@ -1,6 +1,6 @@
 use std::{env, error::Error};
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL");
 
@@ -12,8 +12,8 @@ fn main() {
     let mut pg = postgres::Client::connect(&database_url, tls_connector)
         .expect("postgres connect");
 
-    let result = pg.execute("SELECT 1", &[])
-        .expect("SELECT 1");
+    let result: String = pg.query_one("SELECT 'db connection ok'", &[])?.get(0);
 
     println!("{result}");
+    Ok(())
 }

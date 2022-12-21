@@ -56,7 +56,7 @@ impl InsertSql {
 
         let mut values: Vec<SimpleExpr> = vec![
             (self.status_id).into(),
-            format!("https://twitter.com/{...}/status/{}", self.status_id).into(),
+            format!("https://twitter.com/bencord0/status/{}", self.status_id).into(),
             self.text.clone().into(),
             self.timestamp.clone().into(),
             self.timestamp.clone().into(),

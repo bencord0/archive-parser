@@ -4,10 +4,10 @@ use std::path::Path;
 mod animated_gif;
 mod photo;
 mod video;
+use crate::sql::UpdateMediaSql;
 pub use animated_gif::AnimatedGif;
 pub use photo::Photo;
 pub use video::Video;
-use crate::sql::UpdateMediaSql;
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "type")]

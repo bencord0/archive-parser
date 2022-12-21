@@ -1,25 +1,32 @@
+use clap::Parser;
+use archive_parser::{TwitterArchive, connect_postgres};
 use std::{
-    env,
     error::Error,
+    path::PathBuf,
 };
-use archive_parser::TwitterArchive;
+
+#[derive(Parser)]
+#[command(author, version)]
+struct Config {
+    #[arg(long, help = "Path to unpacked twitter archive")]
+    archive: PathBuf,
+    #[arg(long, help = "Twitter status id")]
+    tweet_id: i64,
+    #[arg(long, help = "Print SQL query only")]
+    dry_run: bool,
+    media_attachment_ids: Vec<i64>,
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let database_url = env::var("DATABASE_URL")?;
-    let mut pg = postgres::Client::connect(&database_url, postgres::NoTls)?;
+    let config = Config::parse();
+    let mut pg = connect_postgres()?;
 
-    let tweet_id = ...;
+    let archive = TwitterArchive::from_dir(config.archive)?;
+    let tweet = archive.get_tweet(config.tweet_id)?;
 
-    let archive = TwitterArchive::from_dir(...)
-        .expect("Load Twitter Archive Directory");
-    let tweet = archive.get_tweet(tweet_id)
-        .expect("Get Tweet");
+    assert_eq!(tweet.id(), config.tweet_id);
 
-    assert_eq!(tweet.id(), tweet_id);
-
-    let media_attachment_ids: Vec<i64> = vec![109491958253082956];
-
-    for media_id in media_attachment_ids {
+    for media_id in config.media_attachment_ids {
         let sql = archive_parser::UpdateMediaSql::default()
             .status_id(tweet.id())
             .media_id(media_id);
@@ -30,7 +37,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("  {param:?}");
         }
 
-        pg.execute(query.as_str(), &values.as_params())?;
+        if !config.dry_run {
+            pg.execute(query.as_str(), &values.as_params())?;
+        }
     }
 
     Ok(())

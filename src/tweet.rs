@@ -2,17 +2,9 @@
 use chrono::NaiveDateTime;
 use serde::Deserialize;
 
-use crate::{
-    Entities,
-    ExtendedEntities,
-    InsertSql,
-};
+use crate::{Entities, ExtendedEntities, InsertSql};
 
-use crate::media::{
-    Media,
-    Photo,
-    Video,
-};
+use crate::media::{Media, Photo};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Tweet {
@@ -63,16 +55,20 @@ impl Tweet {
         for media in &self.entities.media {
             let url = match media {
                 // No leading whitespace
-                Media::Photo(Photo{url, indices: Some([index, _]), ..}) if index == "0" => url.clone(),
+                Media::Photo(Photo {
+                    url,
+                    indices: Some([index, _]),
+                    ..
+                }) if index == "0" => url.clone(),
                 // Media is in the middle of the tweet, also capture a leading space
-                Media::Photo(Photo{url, ..}) => {
+                Media::Photo(Photo { url, .. }) => {
                     let mut u = url.clone();
                     u.insert(0, ' ');
                     u
-                },
+                }
                 _ => {
                     panic!("unrecognised media type");
-                },
+                }
             };
 
             text = text.replace(&url, "");
@@ -143,14 +139,11 @@ impl std::fmt::Display for Tweet {
 mod twitter_date_format {
     use chrono::NaiveDateTime;
     use serde::{Deserialize, Deserializer};
-    pub fn deserialize<'de, D>(
-        deserializer: D,
-    ) -> Result<NaiveDateTime, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDateTime::parse_from_str(&s, "%a %b %d %T %z %Y")
-            .map_err(serde::de::Error::custom)
+        NaiveDateTime::parse_from_str(&s, "%a %b %d %T %z %Y").map_err(serde::de::Error::custom)
     }
 }

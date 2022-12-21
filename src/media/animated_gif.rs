@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::Deserialize;
 use super::{Sizes, VideoInfo};
+use serde::Deserialize;
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct AnimatedGif {

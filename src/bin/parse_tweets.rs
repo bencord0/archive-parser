@@ -1,12 +1,25 @@
-#![allow(dead_code)]
+use clap::Parser;
 use archive_parser::{Tweet, TweetWrapper};
-use std::collections::BTreeMap;
+use std::{
+    collections::BTreeMap,
+    path::PathBuf,
+};
+
+#[derive(Parser)]
+#[command(author, version)]
+struct Config {
+    #[arg(long)]
+    archive: PathBuf,
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Config::parse();
+
     // My archive is about 21M.
     // serde-rs/json#160 suggests that this into memory is best
     // https://github.com/serde-rs/json/issues/160
-    let content = std::fs::read_to_string(".../data/tweets.js")?;
+    let tweets_data_path = config.archive.join("data/tweets.js");
+    let content = std::fs::read_to_string(tweets_data_path)?;
 
     let prefix = "window.YTD.tweets.part0 = ".len();
     let tweets: Vec<TweetWrapper> = serde_json::from_str(&content[prefix..])?;

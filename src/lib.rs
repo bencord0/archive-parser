@@ -3,14 +3,12 @@ use serde::Deserialize;
 
 mod archive;
 mod media;
+mod mastodon;
 mod sql;
 mod tweet;
 pub use archive::TwitterArchive;
-pub use media::{
-    Media,
-    Photo,
-    Video,
-};
+pub use media::{Media, Photo, Video};
+pub use mastodon::{MastodonClient, MediaResponse, connect_postgres};
 pub use sql::{InsertSql, SelectStatusSql, Status, UpdateMediaSql};
 pub use tweet::Tweet;
 
@@ -31,7 +29,7 @@ pub struct Entities {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct ExtendedEntities {
-    pub media: Vec<Media>
+    pub media: Vec<Media>,
 }
 
 #[derive(Clone, Debug, Deserialize)]

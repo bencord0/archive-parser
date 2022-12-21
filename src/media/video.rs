@@ -1,8 +1,6 @@
-use std::{
-    path::PathBuf,
-};
+use super::{Sizes, VideoInfo};
 use serde::Deserialize;
-use super::{VideoInfo, Sizes};
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Video {

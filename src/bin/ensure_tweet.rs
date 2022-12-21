@@ -1,5 +1,5 @@
 use clap::Parser;
-use archive_parser::{MastodonClient, TwitterArchive, connect_postgres};
+use archive_parser::{MastodonClient, SelectStatusSql, TwitterArchive, connect_postgres};
 use std::{error::Error, path::PathBuf};
 
 #[derive(Parser)]
@@ -21,8 +21,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let tweet = archive.get_tweet(config.tweet_id)?;
 
     assert_eq!(tweet.id(), config.tweet_id);
-    println!("{tweet}");
 
+    let sql = SelectStatusSql::default().status_id(config.tweet_id);
+    if let Ok(status) = sql.fetch(&mut pg) {
+        if (tweet.id() as i64 == status.id)
+            && (tweet.media().len() == status.media_count())
+        {
+            println!("{status}");
+            return Ok(());
+        }
+    }
+
+    // --- Need to insert the tweet ---
     let mut media_attachment_ids: Vec<i64> = Vec::new();
     for media in tweet.media() {
         // XXX: base_dir should be built into the client
@@ -36,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         assert!(file_name.exists());
 
         let media_response = mastodon.post_media(&file_name)?;
-        let media_id = media_response.id()?;
+        let media_id: i64 = media_response.id()?;
         media_attachment_ids.push(media_id);
     }
 
@@ -48,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     for media_id in media_attachment_ids {
         let sql = archive_parser::UpdateMediaSql::default()
-            .status_id(tweet.id())
+            .status_id(tweet.id() as i64)
             .media_id(media_id);
         let (query, values) = sql.as_query_values();
         pg.execute(query.as_str(), &values.as_params())?;

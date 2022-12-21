@@ -111,7 +111,7 @@ impl PartialEq<Status> for &Tweet {
     fn eq(&self, other: &Status) -> bool {
         let tweet_id: i64 = self.id().try_into().unwrap();
         tweet_id == other.id
-        && format!("https://twitter.com/bencord0/status{}", self.id()) == other.uri
+        && format!("https://twitter.com/bencord0/status/{}", tweet_id) == other.uri
         && self.replaced_text() == other.text
         && self.created_at == other.created_at
         && self.created_at == other.updated_at
